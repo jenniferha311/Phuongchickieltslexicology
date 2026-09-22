@@ -9,12 +9,13 @@ import {
   Moon,
   Sun,
   ShieldCheck,
-  Award
+  Award,
+  Zap
 } from 'lucide-react';
 import { Lesson } from '../types';
 import teacherAvatarImg from '../assets/images/teacher_avatar_1790011246813.jpg';
 
-export type TabId = 'library' | 'analyze' | 'vocab' | 'patterns' | 'flashcards' | 'exercise' | 'progress' | 'teacher';
+export type TabId = 'library' | 'analyze' | 'vocab' | 'patterns' | 'flashcards' | 'exercise' | 'quick_quiz' | 'progress' | 'teacher';
 
 interface NavbarProps {
   activeTab: TabId;
@@ -24,6 +25,7 @@ interface NavbarProps {
   onToggleTeacherMode: () => void;
   darkMode: boolean;
   onToggleDarkMode: () => void;
+  starredCount?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -34,9 +36,26 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleTeacherMode,
   darkMode,
   onToggleDarkMode,
+  starredCount = 0,
 }) => {
-  const navItems: { id: TabId; label: string; icon: React.ReactNode }[] = [
+  const navItems: { id: TabId; label: string; icon: React.ReactNode; badge?: React.ReactNode }[] = [
     { id: 'library', label: 'Kho bài học', icon: <FolderOpen className="w-4 h-4" /> },
+    {
+      id: 'quick_quiz',
+      label: 'Quick Quiz',
+      icon: <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />,
+      badge: (
+        <span
+          className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-extrabold border transition-colors ${
+            activeTab === 'quick_quiz'
+              ? 'bg-amber-400 text-slate-950 border-amber-300'
+              : 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+          }`}
+        >
+          ⭐ {starredCount}
+        </span>
+      ),
+    },
     { id: 'vocab', label: 'Từ vựng ngữ cảnh', icon: <BookOpen className="w-4 h-4" /> },
     { id: 'patterns', label: 'Cấu trúc & Chunks', icon: <Sparkles className="w-4 h-4" /> },
     { id: 'flashcards', label: 'Flashcards 3D', icon: <Layers className="w-4 h-4" /> },
@@ -111,7 +130,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={item.id}
                   id={`nav-tab-${item.id}`}
                   onClick={() => onSelectTab(item.id)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
                     isActive
                       ? 'bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 shadow-sm border border-teal-200/60 dark:border-teal-800/60'
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -119,6 +138,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   {item.icon}
                   <span>{item.label}</span>
+                  {item.badge}
                 </button>
               );
             })}
@@ -170,6 +190,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 {item.icon}
                 <span>{item.label}</span>
+                {item.badge}
               </button>
             );
           })}

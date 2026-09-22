@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   BookOpen,
   ChevronDown,
@@ -27,6 +27,7 @@ import { FlashcardDeck } from './components/FlashcardDeck';
 import { ExercisePlayer } from './components/ExercisePlayer';
 import { ProgressDashboard } from './components/ProgressDashboard';
 import { TeacherMode } from './components/TeacherMode';
+import { QuickQuiz } from './components/QuickQuiz';
 
 export default function App() {
   // App State
@@ -73,6 +74,19 @@ export default function App() {
 
   const currentLesson =
     lessons.find((l) => l.id === currentLessonId) || lessons[0];
+
+  // Count starred words across all lessons
+  const starredCount = useMemo(() => {
+    let count = 0;
+    for (const lesson of lessons) {
+      for (const vocab of lesson.vocabulary) {
+        if (progressMap[vocab.id]?.starred) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }, [lessons, progressMap]);
 
   // Handlers
   const handleUpdateWordProgress = (progress: WordProgress) => {
@@ -166,12 +180,13 @@ export default function App() {
         onToggleTeacherMode={() => setIsTeacherMode(!isTeacherMode)}
         darkMode={isDarkMode}
         onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+        starredCount={starredCount}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Lesson Selector Bar (when a lesson exists) */}
-        {currentLesson && activeTab !== 'analyze' && (
+        {currentLesson && activeTab !== 'analyze' && activeTab !== 'quick_quiz' && (
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-teal-600/10 text-teal-700 dark:text-teal-400 flex items-center justify-center font-bold text-sm">
@@ -234,6 +249,15 @@ export default function App() {
               lesson={currentLesson}
               onStartFlashcards={() => setActiveTab('flashcards')}
               onStartExercises={() => setActiveTab('exercise')}
+              onNavigateTab={(tab) => setActiveTab(tab as TabId)}
+            />
+          )}
+
+          {activeTab === 'quick_quiz' && (
+            <QuickQuiz
+              lessons={lessons}
+              progressMap={progressMap}
+              onUpdateWordProgress={handleUpdateWordProgress}
               onNavigateTab={(tab) => setActiveTab(tab as TabId)}
             />
           )}

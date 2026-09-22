@@ -51,6 +51,16 @@ export function getWordProgressMap(): Record<string, WordProgress> {
   try {
     const raw = localStorage.getItem(WORD_PROGRESS_KEY);
     if (raw) return JSON.parse(raw);
+    const initialMap: Record<string, WordProgress> = {
+      v1: { wordId: 'v1', status: 'somewhat', starred: true, correctCount: 1, incorrectCount: 0, lastReviewedAt: null },
+      v3: { wordId: 'v3', status: 'not_learned', starred: true, correctCount: 0, incorrectCount: 1, lastReviewedAt: null },
+      v4: { wordId: 'v4', status: 'not_learned', starred: true, correctCount: 0, incorrectCount: 0, lastReviewedAt: null },
+      v8: { wordId: 'v8', status: 'somewhat', starred: true, correctCount: 2, incorrectCount: 1, lastReviewedAt: null },
+    };
+    try {
+      localStorage.setItem(WORD_PROGRESS_KEY, JSON.stringify(initialMap));
+    } catch {}
+    return initialMap;
   } catch {}
   return {};
 }
